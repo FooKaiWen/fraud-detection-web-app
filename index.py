@@ -17,26 +17,13 @@ app = Flask(__name__)
 p = inflect.engine()
 lemmatizer = WordNetLemmatizer()
 
-
-# Load the TF-IDF vectorizer and the prediction model
-with open('tfidf_vectorizer.pkl', 'rb') as vectorizer_file:
-    tfidf_vectorizer = pickle.load(vectorizer_file)
-    
-
-with open('fraud_detection_model.pkl', 'rb') as model_file:
-    model = pickle.load(model_file)
-
-
-feature_names = tfidf_vectorizer.get_feature_names_out()
-coefficients = model.coef_[0]
-# word_coefficients = pd.DataFrame({'word': feature_names, 'coefficient': coefficients})
-word_coefficients = dict(zip(feature_names, coefficients))
+with open('fraud_detection_model.pkl', 'rb') as file:
+    word_ratios_simplified_dict, suspicious_bigrams, model, tfidf_vectorizer = pickle.load(file)
 
 def convert_numbers_to_words_inflect(text):
     return ' '.join(p.number_to_words(word) if word.isdigit() and len(word) < 10 else word for word in text.split())
 
 def text_transform_custom(message):
-    # message = remove_names(message)
     message = message.lower()
     message = re.sub(r'[\(\[].*?[\)\]]', "", message)
     message = convert_numbers_to_words_inflect(message)
@@ -54,8 +41,8 @@ def explain_prediction(text):
     feature_indices = text_tfidf.nonzero()[1]
     feature_names = tfidf_vectorizer.get_feature_names_out()
     relevant_feature_names = [feature_names[i] for i in feature_indices]
-    relevant_features_dict = {k: v for k, v in word_coefficients.items() if k in relevant_feature_names}
-    sorted_relevant_features = dict(sorted(relevant_features_dict.items(), key=lambda item: item[1], reverse=True))
+    relevant_features_dict = {k: v for k, v in word_ratios_simplified_dict.items() if k in relevant_feature_names}
+    sorted_relevant_features = dict(sorted(relevant_features_dict.items(), key=lambda item: item[1][1], reverse=True))
 
     return prediction, sorted_relevant_features
 
@@ -93,4 +80,4 @@ def api():
             return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':  
-   app.run()  
+   app.run(debug=True)  

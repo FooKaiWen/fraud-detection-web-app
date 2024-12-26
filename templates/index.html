@@ -228,7 +228,7 @@
     <div id="contributingWords" class="contributing-words"
         data-bind="visible: nonFraudulentWords().length > 0 || fraudulentWords().length > 0">
         <div class="word-list" data-bind="visible: nonFraudulentWords().length > 0">
-            <h4>Non-Fraudulent Indicators:</h4>
+            <h4>Non-Fraudulent Indicators (sorted by Gini importance):</h4>
             <div data-bind="foreach: nonFraudulentWords">
                 <div class="positive">
                     <div data-bind="text: word"></div>
@@ -237,7 +237,7 @@
             </div>
         </div>
         <div class="word-list" data-bind="visible: fraudulentWords().length > 0">
-            <h4>Fraudulent Indicators:</h4>
+            <h4>Fraudulent Indicators (sorted by Gini importance):</h4>
             <div data-bind="foreach: fraudulentWords">
                 <div class="negative">
                     <div data-bind="text: word"></div>
@@ -388,11 +388,11 @@
 
                             const positiveWords = [];
                             const negativeWords = [];
-                            Object.entries(json.relevant_words || {}).forEach(([word, score]) => {
-                                if (score < 0) {
-                                    positiveWords.push({ word: word, score: Math.abs(score.toFixed(4)) });
+                            Object.entries(json.relevant_words || {}).forEach(([word, values]) => {
+                                if (values[0] < 0.5) {
+                                    positiveWords.push({ word: word, score: values[1].toFixed(4) });
                                 } else {
-                                    negativeWords.push({ word: word, score: score.toFixed(4) });
+                                    negativeWords.push({ word: word, score: values[1].toFixed(4) });
                                 }
                             });
 
