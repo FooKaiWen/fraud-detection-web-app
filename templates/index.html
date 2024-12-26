@@ -351,6 +351,10 @@
         recognition.onerror = function (event) {
         }
         recognition.onend = function () {
+            if (recognizing) {
+                transcript = viewModel.outputText();
+                recognition.start();
+            }
         }
         recognition.onresult = function (event) {
             const resultList = Array.from(event.results);
@@ -467,11 +471,13 @@
         pauseButton.addEventListener('click', () => {
             if (!pause) {
                 pauseButton.textContent = "Continue";
+                recognizing = false;
                 pause = true;
                 transcript = viewModel.outputText();
                 recognition.stop();
             } else {
                 pauseButton.textContent = "Pause";
+                recognizing = true;
                 pause = false;
                 recognition.start();
             }
