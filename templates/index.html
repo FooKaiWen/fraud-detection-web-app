@@ -178,10 +178,56 @@
             text-align: center
             ;
         }
+
+        .ticker-container {
+            width: 100%;
+            overflow: hidden;
+            background-color: black;
+            color: white;
+            padding: 2px 0;
+            position: relative;
+            font-family: Arial, sans-serif;
+            position: fixed;
+            top: 0;
+        }
+
+        .ticker {
+            display: flex;
+            white-space: nowrap;
+            animation: ticker-animation 30s linear infinite;
+        }
+
+        .news-item {
+            margin-right: 12px;
+            font-size: 16px;
+            line-height: 20px;
+        }
+
+        .bold {
+            font-weight: 700;
+        }
+
+        @keyframes ticker-animation {
+        0% {
+            transform: translateX(100%);
+        }
+        100% {
+            transform: translateX(-100%);
+        }
+        }
     </style>
 </head>
 
 <body>
+    <div class="ticker-container">
+        <div class="ticker">
+            <p class="news-item bold">Trending suspicious phrases:</p>
+            {% for msg in suspicious_bigrams %}
+                <p class="news-item">{{ msg }}</p>
+                <p class="news-item">•</p>
+            {% endfor %}
+        </div>
+    </div>
     <div class="overlay" id="popupOverlay">
         <div class="popup">
             <h2>Informed Consent</h2>

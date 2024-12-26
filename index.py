@@ -48,7 +48,7 @@ def explain_prediction(text):
 
 @app.route('/')
 def root():
-    return render_template('index.html')
+    return render_template('index.html', suspicious_bigrams=suspicious_bigrams)
 
 @app.route('/api/predict'
            , methods=['POST']
