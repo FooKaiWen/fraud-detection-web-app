@@ -92,6 +92,11 @@
             color: #721c24;
         }
 
+        .neutral {
+            background-color: #bed8f3;
+            color: #0b0c53;
+        }
+
         button {
             padding: 10px 20px;
             font-size: 18px;
@@ -272,11 +277,20 @@
     <div class="output-box" id="outputBox" data-bind="text: outputText">
     </div>
     <div id="contributingWords" class="contributing-words"
-        data-bind="visible: nonFraudulentWords().length > 0 || fraudulentWords().length > 0">
+        data-bind="visible: nonFraudulentWords().length > 0 || fraudulentWords().length > 0 || neutralWords().length > 0">
         <div class="word-list" data-bind="visible: nonFraudulentWords().length > 0">
             <h4>Non-Fraudulent Indicators (sorted by Gini importance):</h4>
             <div data-bind="foreach: nonFraudulentWords">
                 <div class="positive">
+                    <div data-bind="text: word"></div>
+                    <div data-bind="text: score"></div>
+                </div>
+            </div>
+        </div>
+        <div class="word-list" data-bind="visible: neutralWords().length > 0">
+            <h4>Neutral Indicators (sorted by Gini importance):</h4>
+            <div data-bind="foreach: neutralWords">
+                <div class="neutral">
                     <div data-bind="text: word"></div>
                     <div data-bind="text: score"></div>
                 </div>
@@ -357,6 +371,7 @@
             showRestartBtn: ko.observable(false),
             nonFraudulentWords: ko.observableArray([]),
             fraudulentWords: ko.observableArray([]),
+            neutralWords: ko.observableArray([]),
             showPauseBtn: ko.observable(false),
         };
 
@@ -369,6 +384,7 @@
             viewModel.isFraud(false)
             viewModel.nonFraudulentWords([])
             viewModel.fraudulentWords([])
+            viewModel.neutralWords([])
         }
 
         viewModel.fraudStatusLabel = ko.computed(() => {
@@ -438,11 +454,14 @@
 
                             const positiveWords = [];
                             const negativeWords = [];
+                            const neutralWords = [];
                             Object.entries(json.relevant_words || {}).forEach(([word, values]) => {
-                                if (values[0] < 0.5) {
+                                if (values[0] <= 0.2) {
                                     positiveWords.push({ word: word, score: values[1].toFixed(4) });
-                                } else {
+                                } else if (values[0] >= 0.8) {
                                     negativeWords.push({ word: word, score: values[1].toFixed(4) });
+                                } else {
+                                    neutralWords.push({ word: word, score: values[1].toFixed(4) });
                                 }
                             });
 
@@ -459,6 +478,7 @@
 
                             viewModel.nonFraudulentWords(positiveWords.sort(compare));
                             viewModel.fraudulentWords(negativeWords.sort(compare));
+                            viewModel.neutralWords(neutralWords.sort(compare));
 
                         } catch (err) {
                             console.log("Error")
